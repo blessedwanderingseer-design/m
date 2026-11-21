@@ -1,0 +1,27 @@
+name: Build vc.exe (Windows, CUDA)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ilammy/msvc-dev-cmd@v1
+      - uses: Jimver/cuda-toolkit@v0.2.19
+        with:
+          cuda: '12.4.1'
+          method: 'network'
+          sub-packages: '["nvcc", "cudart"]'
+      - name: Compile
+        shell: cmd
+        run: |
+          nvcc -O3 -arch=sm_75 -o vc.exe vc.cu
+          dir vc.exe
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vc-exe
+          path: vc.exe
